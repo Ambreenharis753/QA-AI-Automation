@@ -1,0 +1,166 @@
+{
+  "name": "QA AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d759f835-1c31-4b88-b90e-3f83461b8c95",
+      "name": "When chat message received",
+      "webhookId": "a9891360-f44a-4e36-882d-3ec2d2034938"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful Q&A assistant that answers questions based on feedback data. Use tools to search for relevant information by querying the 'Question' and 'Tags' columns. When a user asks a question, search the QA database to find matching questions or relevant tags, then provide the corresponding answer. If you find multiple relevant entries, synthesize the information. If no relevant information is found, politely inform the user that you don't have that information in the QA database."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "551d1489-f0b8-459a-b3b2-c3b8bd39f5bd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        176
+      ],
+      "id": "02865704-6879-4238-8140-fe8e9d7e4439",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "l0tg1P7BgTZTdeRi",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        176
+      ],
+      "id": "02d07788-ad6a-426e-bc56-fc79a3f19606",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to search the feedback data table for relevant entries. Provide a search query that will be matched against the 'Question' column to find relevant feedback. The tool returns matching entries with their answers. Always provide a specific search term based on what the user is asking about.",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "MiCDGg8SOwcA8cF1",
+          "mode": "list",
+          "cachedResultName": "QA ingest",
+          "cachedResultUrl": "/projects/76xf5pdQ2P6U1Q7s/datatables/MiCDGg8SOwcA8cF1"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Question",
+              "condition": "ilike",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Value', `The search term or question to look for in the feedback database. Filters by questions containing your search term so use single words or short fragments.`, 'string') }}"
+            },
+            {
+              "keyName": "Tags",
+              "condition": "ilike",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Value', `Key terms for this question:answer pair that was classified by AI. Use one search term per tool invocation.`, 'string') }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        192
+      ],
+      "id": "ec460fe1-f073-4308-8b68-b92702987682",
+      "name": "fetch qa from db"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch qa from db": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bdfeb5b8-2de3-40fe-ba41-a96fb83a72f9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "861bbce409e266cf17a3aacced4a17be14340cedaf92b59fa3535f0ad61a4708"
+  },
+  "id": "SClXEnTqjQSuseSJ",
+  "tags": []
+}
